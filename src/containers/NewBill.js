@@ -17,7 +17,21 @@ export default class NewBill {
   }
   handleChangeFile = e => {
     e.preventDefault()
-    const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
+    const acceptedFormats = ['image/png', 'image/jpeg', 'image/jpg']
+    const fileField = this.document.querySelector(`input[data-testid="file"]`)
+    const file = fileField.files[0]
+    const errorFileElement = document.querySelector('.file-error')
+    if(errorFileElement){
+      errorFileElement.remove()
+    }
+    if(!acceptedFormats.includes(file.type)){
+      fileField.value = ''
+      const errorElement = document.createElement('p')
+      errorElement.innerText = 'Veuillez sélectionner le bon format de fichier'
+      errorElement.classList.add('file-error')
+      fileField.parentElement.appendChild(errorElement)
+      return
+    }
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
     const formData = new FormData()
@@ -34,7 +48,6 @@ export default class NewBill {
         }
       })
       .then(({fileUrl, key}) => {
-        console.log(fileUrl)
         this.billId = key
         this.fileUrl = fileUrl
         this.fileName = fileName
