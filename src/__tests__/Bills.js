@@ -7,19 +7,12 @@ import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
 import { ROUTES_PATH, ROUTES } from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
+import store from "../__mocks__/store.js";
 
 import router from "../app/Router.js";
 import Bills from "../containers/Bills.js";
 import userEvent from "@testing-library/user-event";
 
-/*jest.mock('../containers/Bills.js', () => {
-  return jest.fn().mockImplementation(() => {
-    return {
-      handleClickNewBill: jest.fn(),
-      getBills: jest.fn().mockResolvedValue()
-    };
-  });
-});*/
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -67,9 +60,10 @@ describe("Given I am connected as an employee", () => {
       const btnNewBill = screen.getByTestId('btn-new-bill')
 
       const billsContainer = new Bills({
-        document, onNavigate, store: null, bills:[], localStorage: window.localStorage
+        document, onNavigate, store: null, localStorage: window.localStorage
       })
       const spy = jest.spyOn(billsContainer, 'handleClickNewBill')
+      btnNewBill.addEventListener('click', billsContainer.handleClickNewBill)
 
       // Execution
       userEvent.click(btnNewBill)
@@ -78,4 +72,85 @@ describe("Given I am connected as an employee", () => {
       expect(spy).toHaveBeenCalled()
     })
   })
+
+  test('When I click on eye icon, it should trigger handleClickIconEye function', async () => {
+    // Prepare
+    Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+    window.localStorage.setItem('user', JSON.stringify({
+      type: 'Employee'
+    }))
+    document.body.innerHTML = BillsUI({ data: [{}] })
+    await waitFor(() => screen.getByTestId('icon-eye'))
+    const iconEye = screen.getByTestId('icon-eye')
+
+    const billsContainer = new Bills({
+      document, onNavigate, store, localStorage: window.localStorage
+    })
+    const spy = jest.spyOn(billsContainer, 'handleClickIconEye').mockImplementation(() => {})
+    iconEye.addEventListener('click', billsContainer.handleClickIconEye)
+
+    // Execution
+    userEvent.click(iconEye)
+
+    // Assertion
+    expect(spy).toHaveBeenCalled()
+  
+  })
+
+  test('When I call on handleClickIconEye, it should call $.modal function', async () => {
+    // Prepare
+    Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+    window.localStorage.setItem('user', JSON.stringify({
+      type: 'Employee'
+    }))
+  
+    const billsContainer = new Bills({
+      document, onNavigate, store, localStorage: window.localStorage
+    })
+    const modal = jest.fn()
+    window.$ = () => {
+      return {
+        width: jest.fn(),
+        find: jest.fn().mockImplementation(() => {
+          return {
+            html: jest.fn()
+          }
+        }),
+        click: jest.fn(), //TODO: Voir mockRestore
+        modal
+      }      
+    }
+    
+    const icon = {
+      getAttribute: () => ''
+    }
+
+    // Execution
+    billsContainer.handleClickIconEye(icon)
+
+    // Assertion
+    expect(modal).toHaveBeenCalled()
+  
+  })
+
+  test('When I call on getBills, it should return a well formed array of bills', async () => {
+    // Prepare
+    Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+    window.localStorage.setItem('user', JSON.stringify({
+      type: 'Employee'
+    }))
+  
+    const billsContainer = new Bills({
+      document, onNavigate, store, localStorage: window.localStorage
+    })
+
+    // Execution
+    const bills = billsContainer.getBills()
+
+    // Assertion
+    expect(bills).toBeInstanceOf(Promise)
+    expect(bills).resolves.toHaveLength(4)
+  
+  })
+
 })

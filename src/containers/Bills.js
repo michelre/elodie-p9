@@ -9,7 +9,6 @@ export default class {
     this.store = store    
     const buttonNewBill = document.querySelector(`button[data-testid="btn-new-bill"]`)
     if (buttonNewBill) {
-      console.log(this.handleClickNewBill)
       buttonNewBill.addEventListener('click', this.handleClickNewBill)
     }
     const iconEye = document.querySelectorAll(`div[data-testid="icon-eye"]`)

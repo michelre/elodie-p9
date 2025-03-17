@@ -29,7 +29,7 @@ export default () => {
       const divIcon1 = document.getElementById('layout-icon1')
       const divIcon2 = document.getElementById('layout-icon2')
       divIcon1.classList.add('active-icon')
-      divIcon2.classList.remove('active-icon')
+      divIcon2.classList.remove('active-icon')      
       const bills = new Bills({ document, onNavigate, store, localStorage  })
       bills.getBills().then(data => {
         rootDiv.innerHTML = BillsUI({ data })
