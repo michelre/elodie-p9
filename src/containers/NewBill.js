@@ -39,8 +39,6 @@ export default class NewBill {
     formData.append('file', file)
     formData.append('email', email)
 
-
-    console.log(formData)
     this.store
       .bills()
       .create({
@@ -57,8 +55,7 @@ export default class NewBill {
   }
   handleSubmit = e => {
     e.preventDefault()
-    console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
-    const email = JSON.parse(localStorage.getItem("user")).email
+    const email = JSON.parse(localStorage.getItem("user")).email    
     const bill = {
       email,
       type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
@@ -77,6 +74,7 @@ export default class NewBill {
   }
 
   // not need to cover this function by tests
+  /* istanbul ignore next */
   updateBill = (bill) => {
     if (this.store) {
       this.store
